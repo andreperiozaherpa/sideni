@@ -1,0 +1,12 @@
+domains:
+  - sideni_waykanan
+php_version: "8.4"
+node_version: "22"
+framework: laravel
+framework_version: "13"
+secured: true
+services:
+  - mysql
+workers:
+  - queue
+  - vite

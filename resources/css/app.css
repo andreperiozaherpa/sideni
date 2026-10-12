@@ -1,0 +1,204 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    body {
+        @apply bg-slate-100 text-slate-800 antialiased;
+    }
+}
+
+@layer components {
+    .glass {
+        @apply rounded-2xl border border-white/50 bg-white/60 shadow-xl shadow-slate-900/5 backdrop-blur-xl;
+    }
+
+    .glass-soft {
+        @apply rounded-2xl border border-white/40 bg-white/40 shadow-lg shadow-slate-900/5 backdrop-blur-lg;
+    }
+
+    .field {
+        @apply w-full rounded-xl border border-white/60 bg-white/70 px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-200/50;
+    }
+
+    .label {
+        @apply grid gap-2 text-sm font-medium text-slate-700;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-500/25 hover:brightness-110;
+    }
+
+    .btn-ghost {
+        @apply border border-white/60 bg-white/70 text-slate-700 hover:bg-white;
+    }
+
+    .btn-danger {
+        @apply bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-lg shadow-rose-500/25 hover:brightness-110;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+    }
+
+    .nav-item {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition;
+    }
+
+    .nav-item-active {
+        @apply bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-500/25;
+    }
+
+    .nav-item-idle {
+        @apply text-slate-600 hover:bg-white/70 hover:text-slate-900;
+    }
+
+    .link {
+        @apply font-semibold text-sky-700 hover:text-sky-900;
+    }
+}
+
+/* Scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.35);
+    border-radius: 9999px;
+}
+
+/* DataTables (v2) glass theming */
+.dt-container {
+    @apply w-full;
+}
+
+.dt-container .dt-length,
+.dt-container .dt-search {
+    @apply mb-3 flex items-center gap-2 text-sm text-slate-600;
+}
+
+.dt-container .dt-search input,
+.dt-container .dt-length select {
+    @apply rounded-xl border border-white/60 bg-white/80 px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-200/50;
+}
+
+.dt-container .dt-info {
+    @apply mt-3 text-sm text-slate-500;
+}
+
+.dt-container .dt-paging {
+    @apply mt-3 flex flex-wrap items-center justify-end gap-1;
+}
+
+.dt-container .dt-paging .dt-paging-button {
+    @apply rounded-lg border border-white/60 bg-white/70 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-white;
+}
+
+.dt-container .dt-paging .dt-paging-button.current {
+    @apply border-transparent bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow;
+}
+
+.dt-container .dt-paging .dt-paging-button.disabled {
+    @apply cursor-not-allowed opacity-40;
+}
+
+table.datatable thead th,
+table.datatable-client thead th {
+    @apply bg-white/50 text-xs font-semibold uppercase tracking-wide text-slate-500;
+}
+
+/* Select2 glass theming */
+.select2-container--default .select2-selection--single {
+    height: 44px;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #334155;
+    padding-left: 0.5rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 42px;
+}
+
+.select2-dropdown {
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 45px -20px rgba(15, 23, 42, 0.35);
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border-radius: 0.6rem;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    padding: 0.4rem 0.6rem;
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background: linear-gradient(to right, #0284c7, #4f46e5);
+}
+
+/* Dropzone glass theming */
+.dropzone {
+    border-radius: 1rem;
+    border: 1.5px dashed rgba(148, 163, 184, 0.6);
+    background: rgba(255, 255, 255, 0.5);
+    min-height: 140px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dropzone:hover {
+    border-color: rgba(14, 165, 233, 0.7);
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.dropzone .dz-message {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.dropzone .dz-preview .dz-progress {
+    border-radius: 9999px;
+}
+
+.dropzone .dz-preview .dz-status {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.dropzone .dz-preview .dz-status-ok {
+    color: #15803d;
+}
+
+.dropzone .dz-preview .dz-status-error {
+    color: #b91c1c;
+}
+
+.dropzone .dz-preview .dz-error-message {
+    display: none;
+}
