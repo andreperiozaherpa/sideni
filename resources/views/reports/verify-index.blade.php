@@ -17,9 +17,9 @@
                 :url="route('reports.verify.index')"
                 :columns="[
                     ['data' => 'registration_number', 'title' => 'Nomor'],
-                    ['data' => 'village_name', 'title' => 'Kampung', 'orderable' => false, 'searchable' => false],
-                    ['data' => 'category_name', 'title' => 'Kategori', 'orderable' => false, 'searchable' => false],
-                    ['data' => 'risk_label', 'title' => 'Risiko', 'orderable' => false, 'searchable' => false],
+                    ['data' => 'village_name', 'title' => 'Kampung', 'orderable' => false],
+                    ['data' => 'category_name', 'title' => 'Kategori', 'orderable' => false],
+                    ['data' => 'risk_label', 'title' => 'Risiko', 'orderable' => false],
                     ['data' => 'submitted_label', 'title' => 'Dilaporkan', 'orderable' => false, 'searchable' => false],
                     ['data' => 'sla', 'title' => 'SLA', 'orderable' => false, 'searchable' => false],
                     ['data' => 'action', 'title' => '', 'orderable' => false, 'searchable' => false],

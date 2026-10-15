@@ -20,6 +20,9 @@ class ReportVerificationController extends Controller
 
         if ($request->ajax()) {
             return DataTables::eloquent($query->orderBy('status_changed_at')->orderBy('id'))
+                ->filterColumn('village_name', fn ($query, $keyword) => $query->whereHas('village', fn ($query) => $query->where('name', 'like', "%{$keyword}%")))
+                ->filterColumn('category_name', fn ($query, $keyword) => $query->whereHas('reportCategory', fn ($query) => $query->where('name', 'like', "%{$keyword}%")))
+                ->filterColumn('risk_label', fn ($query, $keyword) => $query->where('risk_level', 'like', '%'.(['rendah' => 'low', 'sedang' => 'medium', 'tinggi' => 'high'][strtolower($keyword)] ?? strtolower($keyword)).'%'))
                 ->addColumn('village_name', fn (Report $report) => $report->village?->name ?? '-')
                 ->addColumn('category_name', fn (Report $report) => $report->reportCategory?->name ?? '-')
                 ->addColumn('risk_label', fn (Report $report) => str($report->risk_level->value)->title())

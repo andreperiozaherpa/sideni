@@ -71,6 +71,47 @@ test('the datatables endpoint applies per-column search', function () {
     expect($response->json('recordsFiltered'))->toBe(1);
 });
 
+test('the reports datatable searches across derived columns', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+
+    $village = Village::factory()->create(['name' => 'Kampung CariUji']);
+    Report::factory()->create(['village_id' => $village->id]);
+    Report::factory()->count(2)->create();
+
+    $column = fn (string $data, bool $searchable) => [
+        'data' => $data,
+        'name' => $data,
+        'searchable' => $searchable ? 'true' : 'false',
+        'orderable' => 'false',
+        'search' => ['value' => '', 'regex' => 'false'],
+    ];
+
+    $query = [
+        'draw' => 1,
+        'start' => 0,
+        'length' => 10,
+        'search' => ['value' => 'CariUji', 'regex' => 'false'],
+        'order' => [['column' => 0, 'dir' => 'desc']],
+        'columns' => [
+            $column('registration_number', true),
+            $column('village_name', true),
+            $column('category_name', true),
+            $column('risk_label', true),
+            $column('status_label', true),
+            $column('created_label', false),
+            $column('sla', false),
+            $column('action', false),
+        ],
+    ];
+
+    $response = $this->actingAs($admin)->getJson(route('reports.index', $query), ['X-Requested-With' => 'XMLHttpRequest']);
+
+    $response->assertOk();
+    expect($response->json('recordsTotal'))->toBe(3);
+    expect($response->json('recordsFiltered'))->toBe(1);
+});
+
 test('a temporary upload can be stored and discarded', function () {
     Storage::fake('local');
     $user = User::factory()->create();
