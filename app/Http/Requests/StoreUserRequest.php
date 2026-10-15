@@ -27,6 +27,7 @@ class StoreUserRequest extends FormRequest
             'username' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:users,username'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:12', 'confirmed'],
+            'village_id' => ['nullable', 'integer', 'exists:villages,id'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ];

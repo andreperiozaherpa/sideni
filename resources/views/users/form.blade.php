@@ -12,6 +12,12 @@
                 <label class="label">Nama<input class="field" name="name" value="{{ old('name', $user->name) }}" required></label>
                 <label class="label">Username<input class="field" name="username" value="{{ old('username', $user->username) }}" required></label>
                 <label class="label">Email<input class="field" type="email" name="email" value="{{ old('email', $user->email) }}" required></label>
+                <label class="label">Kampung <span class="text-xs font-normal text-slate-500">(isi untuk Aparatur Kampung)</span>
+                    <select class="select2 field" name="village_id">
+                        <option value="">— Tidak terikat kampung —</option>
+                        @foreach ($villages as $village)<option value="{{ $village->id }}" @selected(old('village_id', $user->village_id) == $village->id)>{{ $village->name }}</option>@endforeach
+                    </select>
+                </label>
                 <label class="label">Kata sandi {{ $user->exists ? '(kosongkan jika tidak diubah)' : '' }}<input class="field" type="password" name="password" {{ $user->exists ? '' : 'required' }}></label>
                 <label class="label">Konfirmasi kata sandi<input class="field" type="password" name="password_confirmation" {{ $user->exists ? '' : 'required' }}></label>
                 <fieldset class="grid gap-2">

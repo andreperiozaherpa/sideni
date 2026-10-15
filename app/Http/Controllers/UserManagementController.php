@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
+use App\Models\Village;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +22,9 @@ class UserManagementController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         if ($request->ajax()) {
-            return DataTables::eloquent(User::query()->with('roles')->orderByDesc('id'))
+            return DataTables::eloquent(User::query()->with('roles', 'village')->orderByDesc('id'))
+                ->filterColumn('village_name', fn ($query, $keyword) => $query->whereHas('village', fn ($query) => $query->where('name', 'like', "%{$keyword}%")))
+                ->addColumn('village_name', fn (User $user) => $user->village?->name ?? '-')
                 ->addColumn('roles_label', fn (User $user) => $user->getRoleNames()->join(', ') ?: '-')
                 ->addColumn('action', fn (User $user) => $this->userActions($user))
                 ->rawColumns(['action'])
@@ -35,7 +39,7 @@ class UserManagementController extends Controller
      */
     public function create(): View
     {
-        return view('users.form', ['user' => new User, 'roles' => Role::query()->orderBy('name')->get()]);
+        return view('users.form', ['user' => new User, 'roles' => Role::query()->orderBy('name')->get(), 'villages' => $this->villages()]);
     }
 
     /**
@@ -43,7 +47,7 @@ class UserManagementController extends Controller
      */
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        $user = User::create($request->safe()->only(['name', 'username', 'email', 'password']));
+        $user = User::create($request->safe()->only(['name', 'username', 'email', 'password', 'village_id']));
         $user->syncRoles(Role::query()->whereKey($request->input('roles'))->get());
 
         return redirect()->route('users.index')->with('status', 'Pengguna berhasil dibuat.');
@@ -54,7 +58,7 @@ class UserManagementController extends Controller
      */
     public function edit(User $user): View
     {
-        return view('users.form', ['user' => $user->load('roles'), 'roles' => Role::query()->orderBy('name')->get()]);
+        return view('users.form', ['user' => $user->load('roles'), 'roles' => Role::query()->orderBy('name')->get(), 'villages' => $this->villages()]);
     }
 
     /**
@@ -62,7 +66,7 @@ class UserManagementController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $attributes = $request->safe()->only(['name', 'username', 'email']);
+        $attributes = $request->safe()->only(['name', 'username', 'email', 'village_id']);
 
         if ($request->filled('password')) {
             $attributes['password'] = $request->string('password')->toString();
@@ -99,5 +103,15 @@ class UserManagementController extends Controller
             .csrf_field().method_field('DELETE')
             .'<button class="font-semibold text-red-700" type="submit">Hapus</button></form>'
             .'</div>';
+    }
+
+    /**
+     * Villages offered when assigning a user to a village.
+     *
+     * @return Collection<int, Village>
+     */
+    private function villages(): Collection
+    {
+        return Village::query()->where('is_active', true)->orderBy('name')->get();
     }
 }

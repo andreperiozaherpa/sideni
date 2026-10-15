@@ -48,6 +48,12 @@ class StoreReportRequest extends FormRequest
             if (! $this->filled('incident_type_id') || ! IncidentType::query()->whereKey($this->integer('incident_type_id'))->where('report_category_id', $this->integer('report_category_id'))->exists()) {
                 $validator->errors()->add('incident_type_id', 'Jenis kejadian tidak sesuai kategori.');
             }
+
+            $villageId = $this->user()?->village_id;
+
+            if ($villageId !== null && $this->integer('village_id') !== $villageId) {
+                $validator->errors()->add('village_id', 'Anda hanya dapat membuat laporan untuk kampung Anda sendiri.');
+            }
         }];
     }
 }

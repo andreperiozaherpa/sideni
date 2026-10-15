@@ -56,10 +56,15 @@
                         </div>
                         <div class="mt-5 grid gap-5">
                             <label class="label">Kampung
-                                <select class="select2 field" name="village_id" required>
-                                    <option value="">Pilih kampung</option>
-                                    @foreach ($villages as $village)<option value="{{ $village->id }}" @selected(old('village_id', $report->village_id) == $village->id)>{{ $village->name }}</option>@endforeach
-                                </select>
+                                @if ($lockedVillage)
+                                    <input class="field bg-slate-100" value="{{ $lockedVillage->name }}" disabled>
+                                    <input type="hidden" name="village_id" value="{{ $lockedVillage->id }}">
+                                @else
+                                    <select class="select2 field" name="village_id" required>
+                                        <option value="">Pilih kampung</option>
+                                        @foreach ($villages as $village)<option value="{{ $village->id }}" @selected(old('village_id', $report->village_id) == $village->id)>{{ $village->name }}</option>@endforeach
+                                    </select>
+                                @endif
                             </label>
                             <label class="label">Nama lokasi kejadian
                                 <input class="field" name="location_name" value="{{ old('location_name', $report->location_name) }}" placeholder="Contoh: Jalan Lintas Blambangan Umpu KM 5" required>

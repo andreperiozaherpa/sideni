@@ -11,6 +11,7 @@ use App\Models\TemporaryUpload;
 use App\Models\Village;
 use App\Support\ReportBadges;
 use App\Support\UploadService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -72,13 +73,33 @@ class ReportController extends Controller
     }
 
     /**
+     * Villages the authenticated user is allowed to file a report for.
+     *
+     * A user tied to a village may only pick that village; users without a
+     * village assignment (e.g. administrators) may pick any active village.
+     *
+     * @return Collection<int, Village>
+     */
+    private function selectableVillages(): Collection
+    {
+        $user = auth()->user();
+
+        if ($user->village_id !== null) {
+            return Village::query()->whereKey($user->village_id)->get();
+        }
+
+        return Village::query()->where('is_active', true)->orderBy('name')->get();
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create(): View
     {
         return view('reports.form', [
             'report' => new Report,
-            'villages' => Village::query()->where('is_active', true)->orderBy('name')->get(),
+            'villages' => $this->selectableVillages(),
+            'lockedVillage' => auth()->user()->village,
             'categories' => ReportCategory::query()->where('is_active', true)->orderBy('name')->get(),
         ]);
     }
@@ -119,7 +140,8 @@ class ReportController extends Controller
 
         return view('reports.form', [
             'report' => $report->load('attachments'),
-            'villages' => Village::query()->where('is_active', true)->orderBy('name')->get(),
+            'villages' => $this->selectableVillages(),
+            'lockedVillage' => auth()->user()->village,
             'categories' => ReportCategory::query()->where('is_active', true)->orderBy('name')->get(),
         ]);
     }

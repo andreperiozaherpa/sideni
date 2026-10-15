@@ -16,6 +16,7 @@
                     ['data' => 'name', 'title' => 'Nama'],
                     ['data' => 'username', 'title' => 'Username'],
                     ['data' => 'email', 'title' => 'Email'],
+                    ['data' => 'village_name', 'title' => 'Kampung', 'orderable' => false],
                     ['data' => 'roles_label', 'title' => 'Role', 'orderable' => false, 'searchable' => false],
                     ['data' => 'action', 'title' => '', 'orderable' => false, 'searchable' => false],
                 ]"

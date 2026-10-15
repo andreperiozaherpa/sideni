@@ -56,6 +56,52 @@ test('aparatur kampung can submit a report that is registered and audited', func
     ]);
 });
 
+test('a village-bound user only sees their own village in the report form', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $ownVillage = Village::factory()->create(['name' => 'Kampung Sendiri']);
+    $otherVillage = Village::factory()->create(['name' => 'Kampung Lain']);
+    $user = User::factory()->create(['village_id' => $ownVillage->id])->assignRole('Aparatur Kampung');
+
+    $this->actingAs($user)->get(route('reports.create'))
+        ->assertOk()
+        ->assertSee('Kampung Sendiri')
+        ->assertDontSee('Kampung Lain');
+
+    expect($otherVillage->exists)->toBeTrue();
+});
+
+test('a village-bound user cannot submit a report for another village', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $ownVillage = Village::factory()->create();
+    $otherVillage = Village::factory()->create();
+    $user = User::factory()->create(['village_id' => $ownVillage->id])->assignRole('Aparatur Kampung');
+    $category = ReportCategory::factory()->create();
+    $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
+
+    $this->actingAs($user)
+        ->post(route('reports.store'), sideniReportPayload($otherVillage, $category, $type))
+        ->assertInvalid(['village_id']);
+
+    expect(Report::query()->count())->toBe(0);
+});
+
+test('a user without a village assignment can file a report for any village', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    $village = Village::factory()->create();
+    $category = ReportCategory::factory()->create();
+    $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
+
+    $this->actingAs($admin)
+        ->post(route('reports.store'), sideniReportPayload($village, $category, $type))
+        ->assertRedirect();
+
+    expect(Report::firstOrFail()->village_id)->toBe($village->id);
+});
+
 test('admin can verify clarify and reject a report with a recorded actor', function () {
     $this->seed(RolesAndPermissionsSeeder::class);
     $admin = User::factory()->create()->assignRole('Admin Kesbangpol');

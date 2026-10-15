@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Village;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -36,6 +37,25 @@ test('a user can change their own password', function () {
     ])->assertRedirect()->assertSessionHasNoErrors();
 
     expect(Hash::check('password-baru-123', $user->refresh()->password))->toBeTrue();
+});
+
+test('an admin can assign a village to a user', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    $village = Village::factory()->create();
+    $role = Role::findByName('Aparatur Kampung');
+
+    $this->actingAs($admin)->post(route('users.store'), [
+        'name' => 'Petugas Kampung',
+        'username' => 'petugaskampung',
+        'email' => 'petugas@sideni.test',
+        'password' => 'password-panjang-123',
+        'password_confirmation' => 'password-panjang-123',
+        'village_id' => $village->id,
+        'roles' => [$role->id],
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    expect(User::query()->where('username', 'petugaskampung')->firstOrFail()->village_id)->toBe($village->id);
 });
 
 test('role management is restricted to privileged users and can assign permissions', function () {
