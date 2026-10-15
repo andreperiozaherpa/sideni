@@ -34,3 +34,11 @@ test('users cannot log in with an unknown username', function () {
 
     $this->assertGuest();
 });
+
+test('authenticated users can log out', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->post(route('logout'))->assertRedirectToRoute('login');
+
+    $this->assertGuest();
+});
