@@ -112,6 +112,18 @@ test('the reports datatable searches across derived columns', function () {
     expect($response->json('recordsFiltered'))->toBe(1);
 });
 
+test('the reports datatable renders coloured status badges', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    Report::factory()->create(['status' => 'rejected']);
+
+    $response = $this->actingAs($admin)->getJson(route('reports.index'), ['X-Requested-With' => 'XMLHttpRequest']);
+
+    $response->assertOk()->assertJsonFragment([
+        'status_label' => '<span class="badge bg-rose-100 text-rose-800">Rejected</span>',
+    ]);
+});
+
 test('a temporary upload can be stored and discarded', function () {
     Storage::fake('local');
     $user = User::factory()->create();

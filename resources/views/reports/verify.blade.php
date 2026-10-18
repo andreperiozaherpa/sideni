@@ -5,21 +5,8 @@
 
 @php
     $canViewIdentity = $report->identityVisibleTo(auth()->user());
-    $statusClasses = match ($report->status->value) {
-        'pending' => 'bg-amber-100 text-amber-800',
-        'needs_clarification' => 'bg-orange-100 text-orange-800',
-        'verified' => 'bg-sky-100 text-sky-800',
-        'in_progress' => 'bg-indigo-100 text-indigo-800',
-        'completed' => 'bg-emerald-100 text-emerald-800',
-        'rejected' => 'bg-rose-100 text-rose-800',
-        default => 'bg-slate-100 text-slate-700',
-    };
-    $riskClasses = match ($report->risk_level->value) {
-        'low' => 'bg-emerald-100 text-emerald-800',
-        'medium' => 'bg-amber-100 text-amber-800',
-        'high' => 'bg-rose-100 text-rose-800',
-        default => 'bg-slate-100 text-slate-700',
-    };
+    $statusClasses = \App\Support\ReportBadges::statusClasses($report->status->value);
+    $riskClasses = \App\Support\ReportBadges::riskClasses($report->risk_level->value);
 @endphp
 
 @section('content')

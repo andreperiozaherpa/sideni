@@ -50,7 +50,7 @@
                                 <td class="px-4 py-3 font-medium"><a class="link" href="{{ route('reports.show', $report) }}">{{ $report->registration_number }}</a></td>
                                 <td class="px-4 py-3">{{ $report->village?->name ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $report->reportCategory?->name ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ str($report->status->value)->replace('_', ' ')->title() }}</td>
+                                <td class="px-4 py-3"><span class="badge {{ \App\Support\ReportBadges::statusClasses($report->status->value) }}">{{ \App\Support\ReportBadges::statusLabel($report) }}</span></td>
                             </tr>
                         @empty
                             <tr><td class="px-4 py-3 text-slate-500" colspan="4">Belum ada laporan.</td></tr>

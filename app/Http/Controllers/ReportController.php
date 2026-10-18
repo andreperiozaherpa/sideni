@@ -9,6 +9,7 @@ use App\Models\Report;
 use App\Models\ReportCategory;
 use App\Models\TemporaryUpload;
 use App\Models\Village;
+use App\Support\ReportBadges;
 use App\Support\UploadService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -45,10 +46,10 @@ class ReportController extends Controller
                 ->addColumn('village_name', fn (Report $report) => $report->village?->name ?? '-')
                 ->addColumn('category_name', fn (Report $report) => $report->reportCategory?->name ?? '-')
                 ->addColumn('risk_label', fn (Report $report) => str($report->risk_level->value)->title())
-                ->addColumn('status_label', fn (Report $report) => str($report->status->value)->replace('_', ' ')->title())
+                ->addColumn('status_label', fn (Report $report) => ReportBadges::status($report))
                 ->addColumn('created_label', fn (Report $report) => $report->created_at?->format('d/m/Y H:i'))
                 ->addColumn('action', fn (Report $report) => $this->reportActions($report))
-                ->rawColumns(['action'])
+                ->rawColumns(['status_label', 'action'])
                 ->toJson();
         }
 
