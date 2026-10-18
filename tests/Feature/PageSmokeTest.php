@@ -46,6 +46,19 @@ test('every main page renders for a super admin', function () {
     }
 });
 
+test('the layout exposes SEO metadata and the Way Kanan favicon', function () {
+    $this->withoutVite();
+
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertSee('name="description"', false)
+        ->assertSee('rel="canonical"', false)
+        ->assertSee('favicon-32x32.png', false)
+        ->assertSee('apple-touch-icon.png', false)
+        ->assertSee('og-image.png', false)
+        ->assertSee('site.webmanifest', false);
+});
+
 test('the sidebar renders collapsible menu groups', function () {
     $this->withoutVite();
     $this->seed(RolesAndPermissionsSeeder::class);
