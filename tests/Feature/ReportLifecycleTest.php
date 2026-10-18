@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\ReportStatus;
+use App\Models\District;
 use App\Models\IncidentType;
 use App\Models\Report;
 use App\Models\ReportCategory;
@@ -36,8 +37,8 @@ function sideniReportPayload(Village $village, ReportCategory $category, Inciden
 test('aparatur kampung can submit a report that is registered and audited', function () {
     $this->withoutVite();
     $this->seed(RolesAndPermissionsSeeder::class);
-    $user = User::factory()->create()->assignRole('Aparatur Kampung');
     $village = Village::factory()->create();
+    $user = User::factory()->create(['village_id' => $village->id])->assignRole('Aparatur Kampung');
     $category = ReportCategory::factory()->create();
     $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
 
@@ -102,6 +103,60 @@ test('a user without a village assignment can file a report for any village', fu
     expect(Report::firstOrFail()->village_id)->toBe($village->id);
 });
 
+test('a district-scoped user only sees villages from their own district in the report form', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $district = District::factory()->create();
+    Village::factory()->create(['district_id' => $district->id, 'name' => 'Kampung Dalam Kecamatan']);
+    $otherDistrict = District::factory()->create();
+    Village::factory()->create(['district_id' => $otherDistrict->id, 'name' => 'Kampung Luar Kecamatan']);
+
+    $user = User::factory()->create(['district_id' => $district->id])->assignRole('Aparatur Kampung');
+
+    $this->actingAs($user)->get(route('reports.create'))
+        ->assertOk()
+        ->assertSee('Kampung Dalam Kecamatan')
+        ->assertDontSee('Kampung Luar Kecamatan');
+});
+
+test('a district-scoped user cannot submit a report for a village outside their district', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $district = District::factory()->create();
+    $otherDistrict = District::factory()->create();
+    $outsideVillage = Village::factory()->create(['district_id' => $otherDistrict->id]);
+
+    $user = User::factory()->create(['district_id' => $district->id])->assignRole('Aparatur Kampung');
+    $category = ReportCategory::factory()->create();
+    $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
+
+    $this->actingAs($user)
+        ->post(route('reports.store'), sideniReportPayload($outsideVillage, $category, $type))
+        ->assertInvalid(['village_id']);
+
+    expect(Report::query()->count())->toBe(0);
+});
+
+test('a user without an assigned region cannot create a report', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $user = User::factory()->create()->assignRole('Aparatur Kampung');
+    $village = Village::factory()->create();
+    $category = ReportCategory::factory()->create();
+    $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
+
+    $this->actingAs($user)->get(route('reports.create'))->assertOk()->assertSee('belum ditetapkan wilayah');
+
+    $this->actingAs($user)
+        ->post(route('reports.store'), sideniReportPayload($village, $category, $type))
+        ->assertInvalid(['village_id']);
+
+    expect(Report::query()->count())->toBe(0);
+});
+
 test('admin can verify clarify and reject a report with a recorded actor', function () {
     $this->seed(RolesAndPermissionsSeeder::class);
     $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
@@ -133,13 +188,15 @@ test('admin can mark a verified report as completed', function () {
 test('owner resubmits a clarified report and it returns to pending', function () {
     $this->withoutVite();
     $this->seed(RolesAndPermissionsSeeder::class);
-    $owner = User::factory()->create()->assignRole('Aparatur Kampung');
+    $village = Village::factory()->create();
+    $owner = User::factory()->create(['village_id' => $village->id])->assignRole('Aparatur Kampung');
     $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
     $category = ReportCategory::factory()->create();
     $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
     $report = Report::factory()->create([
         'submitted_by_id' => $owner->id,
         'status' => 'needs_clarification',
+        'village_id' => $village->id,
         'report_category_id' => $category->id,
         'incident_type_id' => $type->id,
     ]);
@@ -183,8 +240,8 @@ test('report attachments are stored through the global upload helper', function 
     Storage::fake('local');
     $this->withoutVite();
     $this->seed(RolesAndPermissionsSeeder::class);
-    $user = User::factory()->create()->assignRole('Aparatur Kampung');
     $village = Village::factory()->create();
+    $user = User::factory()->create(['village_id' => $village->id])->assignRole('Aparatur Kampung');
     $category = ReportCategory::factory()->create();
     $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
 

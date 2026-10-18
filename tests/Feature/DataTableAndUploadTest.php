@@ -164,8 +164,8 @@ test('a temporary upload can be stored and discarded', function () {
 test('temporary uploads are moved into report attachments on submit', function () {
     Storage::fake('local');
     $this->seed(RolesAndPermissionsSeeder::class);
-    $user = User::factory()->create()->assignRole('Aparatur Kampung');
     $village = Village::factory()->create();
+    $user = User::factory()->create(['village_id' => $village->id])->assignRole('Aparatur Kampung');
     $category = ReportCategory::factory()->create();
     $type = IncidentType::factory()->create(['report_category_id' => $category->id]);
 

@@ -21,6 +21,13 @@
             </div>
         @endif
 
+        @if ($lockedVillage === null && $villages->isEmpty())
+            <div class="glass flex items-start gap-3 border-rose-200/60 bg-rose-50/70 p-4 text-sm text-rose-800">
+                <x-icon name="shield" class="h-5 w-5 shrink-0 text-rose-600" />
+                <span>Akun Anda belum ditetapkan wilayah (kecamatan atau kampung), sehingga belum dapat membuat laporan. Hubungi administrator untuk penetapan wilayah.</span>
+            </div>
+        @endif
+
         <form method="POST" enctype="multipart/form-data" action="{{ $report->exists ? route('reports.update', $report) : route('reports.store') }}">
             @csrf @if ($report->exists) @method('PUT') @endif
 
@@ -133,7 +140,7 @@
 
                     <div class="flex flex-wrap justify-end gap-3">
                         <x-button variant="ghost" :href="route('reports.index')">Batal</x-button>
-                        <x-button type="submit">{{ $report->exists ? 'Kirim ulang laporan' : 'Kirim laporan' }}</x-button>
+                        <x-button type="submit" :disabled="$lockedVillage === null && $villages->isEmpty()">{{ $report->exists ? 'Kirim ulang laporan' : 'Kirim laporan' }}</x-button>
                     </div>
                 </div>
 

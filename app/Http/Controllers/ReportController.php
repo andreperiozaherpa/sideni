@@ -74,8 +74,9 @@ class ReportController extends Controller
     /**
      * Villages the authenticated user is allowed to file a report for.
      *
-     * A user tied to a village may only pick that village; users without a
-     * village assignment (e.g. administrators) may pick any active village.
+     * A user tied to a village may only pick that village; a user tied to a
+     * district may pick any village inside it; users without a region (or with
+     * full report access) may pick any active village.
      *
      * @return Collection<int, Village>
      */
@@ -83,11 +84,19 @@ class ReportController extends Controller
     {
         $user = auth()->user();
 
+        if ($user->hasFullReportAccess()) {
+            return Village::query()->where('is_active', true)->orderBy('name')->get();
+        }
+
         if ($user->village_id !== null) {
             return Village::query()->whereKey($user->village_id)->get();
         }
 
-        return Village::query()->where('is_active', true)->orderBy('name')->get();
+        if ($user->district_id !== null) {
+            return Village::query()->where('district_id', $user->district_id)->where('is_active', true)->orderBy('name')->get();
+        }
+
+        return new Collection;
     }
 
     /**

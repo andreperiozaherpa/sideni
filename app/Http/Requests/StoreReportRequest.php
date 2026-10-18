@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\IncidentType;
+use App\Models\Village;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -49,11 +50,37 @@ class StoreReportRequest extends FormRequest
                 $validator->errors()->add('incident_type_id', 'Jenis kejadian tidak sesuai kategori.');
             }
 
-            $villageId = $this->user()?->village_id;
+            $this->validateVillageScope($validator);
+        }];
+    }
 
-            if ($villageId !== null && $this->integer('village_id') !== $villageId) {
+    /**
+     * Ensure the reporter may only file a report inside their own region.
+     */
+    private function validateVillageScope(Validator $validator): void
+    {
+        $user = $this->user();
+
+        if ($user === null || $user->hasFullReportAccess()) {
+            return;
+        }
+
+        if ($user->village_id !== null) {
+            if ($this->integer('village_id') !== $user->village_id) {
                 $validator->errors()->add('village_id', 'Anda hanya dapat membuat laporan untuk kampung Anda sendiri.');
             }
-        }];
+
+            return;
+        }
+
+        if ($user->district_id !== null) {
+            if (! Village::query()->whereKey($this->integer('village_id'))->where('district_id', $user->district_id)->exists()) {
+                $validator->errors()->add('village_id', 'Anda hanya dapat membuat laporan untuk kampung di kecamatan Anda.');
+            }
+
+            return;
+        }
+
+        $validator->errors()->add('village_id', 'Akun Anda belum ditetapkan wilayah. Hubungi administrator sebelum membuat laporan.');
     }
 }
