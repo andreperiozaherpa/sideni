@@ -124,6 +124,19 @@ test('the reports datatable renders coloured status badges', function () {
     ]);
 });
 
+test('the reports datatable offers a delete action only to permitted users', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $superAdmin = User::factory()->create()->assignRole('Super Admin');
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    Report::factory()->create();
+
+    $superAdminAction = $this->actingAs($superAdmin)->getJson(route('reports.index'), ['X-Requested-With' => 'XMLHttpRequest'])->json('data.0.action');
+    $adminAction = $this->actingAs($admin)->getJson(route('reports.index'), ['X-Requested-With' => 'XMLHttpRequest'])->json('data.0.action');
+
+    expect($superAdminAction)->toContain('Hapus');
+    expect($adminAction)->not->toContain('Hapus');
+});
+
 test('the reports table hides the per-column footer search', function () {
     $this->withoutVite();
     $this->seed(RolesAndPermissionsSeeder::class);

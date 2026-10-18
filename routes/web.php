@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::resource('reports', ReportController::class)->only(['create', 'store', 'edit', 'update'])->middleware('permission:create reports');
     Route::resource('reports', ReportController::class)->only(['index', 'show']);
+    Route::delete('reports/{report}', [ReportController::class, 'destroy'])->middleware('permission:delete reports')->name('reports.destroy');
     Route::get('reports/{report}/attachments/{attachment}', [ReportAttachmentController::class, 'show'])->name('reports.attachments.show');
     Route::get('reports/{report}/pdf/bupati', [ReportPdfController::class, 'bupati'])->middleware('permission:export reports')->name('reports.pdf.bupati');
     Route::get('reports/{report}/pdf/notice', [ReportPdfController::class, 'notice'])->name('reports.pdf.notice');

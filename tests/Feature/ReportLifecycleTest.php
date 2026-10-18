@@ -11,6 +11,8 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -254,4 +256,48 @@ test('report attachments are stored through the global upload helper', function 
     expect($report->attachments)->toHaveCount(1);
     expect($report->attachments->first()->path)->toStartWith('uploads/reports/');
     Storage::disk('local')->assertExists($report->attachments->first()->path);
+});
+
+test('a super admin can delete a report together with its attachments and history', function () {
+    Storage::fake('local');
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $superAdmin = User::factory()->create()->assignRole('Super Admin');
+
+    $report = Report::factory()->create();
+    $path = 'uploads/reports/'.$report->id.'/bukti.jpg';
+    $report->attachments()->create([
+        'disk' => 'local',
+        'path' => $path,
+        'original_name' => 'bukti.jpg',
+        'mime_type' => 'image/jpeg',
+        'size' => 100,
+    ]);
+    $report->statusHistories()->create(['to_status' => 'pending']);
+    Storage::disk('local')->put($path, 'contents');
+
+    $this->actingAs($superAdmin)
+        ->delete(route('reports.destroy', $report))
+        ->assertRedirect(route('reports.index'));
+
+    $this->assertDatabaseMissing('reports', ['id' => $report->id]);
+    $this->assertDatabaseMissing('report_attachments', ['report_id' => $report->id]);
+    $this->assertDatabaseMissing('report_status_histories', ['report_id' => $report->id]);
+    Storage::disk('local')->assertMissing($path);
+});
+
+test('a user without the delete reports permission cannot delete a report', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    $report = Report::factory()->create();
+
+    $this->actingAs($admin)->delete(route('reports.destroy', $report))->assertForbidden();
+
+    $this->assertModelExists($report);
+});
+
+test('the delete reports permission is registered in the RBAC', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    expect(Permission::findByName('delete reports'))->not->toBeNull();
+    expect(Role::findByName('Super Admin')->hasPermissionTo('delete reports'))->toBeTrue();
 });

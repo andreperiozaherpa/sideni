@@ -40,6 +40,13 @@
                     @else
                         <span class="badge bg-white/70 text-slate-500"><x-icon name="shield" class="h-3.5 w-3.5" /> Dokumen cetak tersedia setelah laporan diverifikasi</span>
                     @endif
+
+                    @can('delete reports')
+                        <form method="POST" action="{{ route('reports.destroy', $report) }}" data-confirm="Hapus laporan {{ $report->registration_number }} secara permanen?">
+                            @csrf @method('DELETE')
+                            <x-button type="submit" variant="danger">Hapus laporan</x-button>
+                        </form>
+                    @endcan
                 </div>
             </div>
         </section>

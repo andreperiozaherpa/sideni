@@ -16,14 +16,14 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $permissions = ['manage users', 'manage roles', 'manage permissions', 'manage master data', 'create reports', 'view own reports', 'view all reports', 'verify reports', 'view dashboard', 'export reports', 'view reporter identity'];
+        $permissions = ['manage users', 'manage roles', 'manage permissions', 'manage master data', 'create reports', 'view own reports', 'view all reports', 'verify reports', 'view dashboard', 'export reports', 'delete reports', 'view reporter identity'];
 
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
         }
 
         Role::findOrCreate('Aparatur Kampung', 'web')->syncPermissions(['create reports', 'view own reports', 'view dashboard']);
-        Role::findOrCreate('Admin Kesbangpol', 'web')->syncPermissions($permissions);
+        Role::findOrCreate('Admin Kesbangpol', 'web')->syncPermissions(array_values(array_diff($permissions, ['delete reports'])));
         Role::findOrCreate('Kepala Badan', 'web')->syncPermissions(['view all reports', 'view dashboard', 'export reports', 'view reporter identity']);
         Role::findOrCreate('Camat/Forkopimcam', 'web')->syncPermissions(['view all reports', 'view dashboard']);
         Role::findOrCreate('Super Admin', 'web')->syncPermissions($permissions);

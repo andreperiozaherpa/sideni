@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -243,6 +244,20 @@ class ReportController extends Controller
         return $this->changeStatus($report, ReportStatus::Completed, $request->string('note')->toString() ?: 'Penanganan laporan dinyatakan selesai.');
     }
 
+    /**
+     * Permanently remove a report, its attachments and its history.
+     */
+    public function destroy(Report $report): RedirectResponse
+    {
+        foreach ($report->attachments as $attachment) {
+            Storage::disk($attachment->disk)->delete($attachment->path);
+        }
+
+        $report->delete();
+
+        return redirect()->route('reports.index')->with('status', 'Laporan berhasil dihapus.');
+    }
+
     private function changeStatus(Report $report, ReportStatus $status, string $note): RedirectResponse
     {
         $fromStatus = $report->status->value;
@@ -279,6 +294,13 @@ class ReportController extends Controller
 
         if (auth()->user()->can('verify reports') && $report->status === ReportStatus::Pending) {
             $actions[] = $this->actionButton('Verifikasi', route('reports.verify.show', $report), 'from-sky-600 to-indigo-600 shadow-sky-500/25');
+        }
+
+        if (auth()->user()->can('delete reports')) {
+            $actions[] = '<form method="POST" action="'.route('reports.destroy', $report).'" data-confirm="Hapus laporan '.e($report->registration_number).' secara permanen?">'
+                .csrf_field().method_field('DELETE')
+                .'<button type="submit" class="inline-flex items-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-sm shadow-rose-500/25 hover:brightness-110">Hapus</button>'
+                .'</form>';
         }
 
         return '<div class="flex flex-wrap gap-2">'.implode('', $actions).'</div>';
