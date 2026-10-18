@@ -37,7 +37,8 @@ class ReportStatusChanged extends Notification implements ShouldQueue
             ->greeting('Halo '.$notifiable->name.',')
             ->line('Status laporan Anda telah diperbarui menjadi: '.$this->statusLabel().'.')
             ->action('Lihat laporan', route('reports.show', $this->report))
-            ->line('Terima kasih telah menggunakan SI-DENI Way Kanan.');
+            ->line('Terima kasih telah menggunakan SI-DENI Way Kanan.')
+            ->salutation('Salam, '.config('app.name'));
     }
 
     /**

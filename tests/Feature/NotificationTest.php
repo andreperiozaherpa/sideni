@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Notifications\ReportStatusChanged;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Mail\Markdown;
 use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
@@ -48,4 +49,15 @@ test('a user can view notifications and mark them as read', function () {
     $notification = $user->notifications()->first();
     $this->actingAs($user)->post(route('notifications.read', $notification->id))->assertRedirect(route('reports.show', $report));
     expect($user->refresh()->unreadNotifications)->toHaveCount(0);
+});
+
+test('notification emails show the Way Kanan emblem instead of the Laravel logo', function () {
+    $report = Report::factory()->create(['status' => 'pending']);
+    $user = User::factory()->create();
+
+    $message = (new ReportStatusChanged($report))->toMail($user);
+    $html = (string) app(Markdown::class)->render('notifications::email', $message->data());
+
+    expect($html)->toContain('Lambang_Kabupaten_Way_Kanan.png');
+    expect(str_contains($html, 'laravel.com'))->toBeFalse();
 });
