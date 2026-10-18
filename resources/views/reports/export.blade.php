@@ -3,18 +3,50 @@
 @section('page-title', 'Export Laporan')
 @section('page-subtitle', 'Unduh laporan sesuai filter wilayah, jenis, dan periode')
 
+@php
+    $regionLabel = match ($scope) {
+        'village' => ($districts->first()?->name ?? '-').' — '.($villages->first()?->name ?? '-'),
+        'district' => $districts->first()?->name ?? '-',
+        default => null,
+    };
+@endphp
+
 @section('content')
     <div class="mx-auto max-w-3xl space-y-6">
         <a class="inline-flex items-center gap-2 text-sm font-semibold text-sky-700" href="{{ route('reports.index') }}"><x-icon name="arrow-left" class="h-4 w-4" /> Kembali ke daftar laporan</a>
+
+        @if ($scope === 'none')
+            <div class="glass flex items-start gap-3 border-rose-200/60 bg-rose-50/70 p-4 text-sm text-rose-800">
+                <x-icon name="shield" class="h-5 w-5 shrink-0 text-rose-600" />
+                <span>Akun Anda belum ditetapkan wilayah (kecamatan atau kampung), sehingga belum dapat mengekspor laporan. Hubungi administrator untuk penetapan wilayah.</span>
+            </div>
+        @elseif ($scope !== 'all')
+            <div class="glass flex items-start gap-3 border-amber-200/60 bg-amber-50/70 p-4 text-sm text-amber-800">
+                <x-icon name="map-pin" class="h-5 w-5 shrink-0 text-amber-600" />
+                <span>Export dibatasi ke wilayah Anda: <strong>{{ $regionLabel }}</strong>. Hubungi administrator bila cakupan perlu diperluas.</span>
+            </div>
+        @endif
 
         <x-panel title="Filter Export" subtitle="Kosongkan filter untuk mengekspor seluruh laporan yang menjadi kewenangan Anda.">
             <form class="grid gap-5" method="GET" action="{{ route('reports.export.download') }}">
                 <div class="grid gap-5 sm:grid-cols-2">
                     <label class="label">Kecamatan
-                        <select class="select2 field" name="district_id">
-                            <option value="">Semua kecamatan</option>
+                        <select class="select2 field" name="district_id" @disabled($scope !== 'all')>
+                            @if ($scope === 'all')
+                                <option value="">Semua kecamatan</option>
+                            @endif
                             @foreach ($districts as $district)
-                                <option value="{{ $district->id }}" @selected((string) request('district_id') === (string) $district->id)>{{ $district->name }}</option>
+                                <option value="{{ $district->id }}" @selected($scope !== 'all' || (string) request('district_id') === (string) $district->id)>{{ $district->name }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label class="label">Kampung
+                        <select class="select2 field" name="village_id" @disabled($scope === 'village')>
+                            @if ($scope !== 'village')
+                                <option value="">Semua kampung</option>
+                            @endif
+                            @foreach ($villages as $village)
+                                <option value="{{ $village->id }}" @selected($scope === 'village' || (string) request('village_id') === (string) $village->id)>{{ $village->name }}</option>
                             @endforeach
                         </select>
                     </label>
@@ -64,7 +96,7 @@
 
                 <div class="flex flex-wrap justify-end gap-3">
                     <x-button variant="ghost" :href="route('reports.index')">Batal</x-button>
-                    <x-button type="submit" icon="download">Unduh laporan</x-button>
+                    <x-button type="submit" icon="download" :disabled="$scope === 'none'">Unduh laporan</x-button>
                 </div>
             </form>
         </x-panel>

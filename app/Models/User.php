@@ -14,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'password', 'avatar_path', 'village_id'])]
+#[Fillable(['name', 'username', 'email', 'password', 'avatar_path', 'village_id', 'district_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,6 +29,19 @@ class User extends Authenticatable
     public function village(): BelongsTo
     {
         return $this->belongsTo(Village::class);
+    }
+
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    /**
+     * Whether the user may read and export reports from every region.
+     */
+    public function hasFullReportAccess(): bool
+    {
+        return $this->can('view all reports');
     }
 
     public function changedReportStatuses(): HasMany

@@ -12,6 +12,12 @@
                 <label class="label">Nama<input class="field" name="name" value="{{ old('name', $user->name) }}" required></label>
                 <label class="label">Username<input class="field" name="username" value="{{ old('username', $user->username) }}" required></label>
                 <label class="label">Email<input class="field" type="email" name="email" value="{{ old('email', $user->email) }}" required></label>
+                <label class="label">Kecamatan <span class="text-xs font-normal text-slate-500">(isi untuk Camat/Forkopimcam)</span>
+                    <select class="select2 field" name="district_id">
+                        <option value="">— Tidak terikat kecamatan —</option>
+                        @foreach ($districts as $district)<option value="{{ $district->id }}" @selected(old('district_id', $user->district_id) == $district->id)>{{ $district->name }}</option>@endforeach
+                    </select>
+                </label>
                 <label class="label">Kampung <span class="text-xs font-normal text-slate-500">(isi untuk Aparatur Kampung)</span>
                     <select class="select2 field" name="village_id">
                         <option value="">— Tidak terikat kampung —</option>
