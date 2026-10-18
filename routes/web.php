@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportAttachmentController;
 use App\Http\Controllers\ReportCategoryController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\ReportPdfController;
 use App\Http\Controllers\ReportVerificationController;
 use App\Http\Controllers\RoleController;
@@ -63,6 +64,9 @@ Route::middleware('auth')->group(function (): void {
         ->middleware('permission:manage master data');
     Route::resource('districts', DistrictController::class)->except('show')->middleware('permission:manage master data');
     Route::resource('villages', VillageController::class)->except('show')->middleware('permission:manage master data');
+
+    Route::get('reports/export', [ReportExportController::class, 'create'])->middleware('permission:export reports')->name('reports.export');
+    Route::get('reports/export/download', [ReportExportController::class, 'download'])->middleware('permission:export reports')->name('reports.export.download');
 
     Route::resource('reports', ReportController::class)->only(['create', 'store', 'edit', 'update'])->middleware('permission:create reports');
     Route::resource('reports', ReportController::class)->only(['index', 'show']);

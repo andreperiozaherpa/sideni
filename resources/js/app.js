@@ -377,6 +377,15 @@ function initDateTimes() {
             locale,
         });
     });
+
+    document.querySelectorAll('[data-date]').forEach((input) => {
+        window.flatpickr(input, {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            disableMobile: true,
+            locale,
+        });
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

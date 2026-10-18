@@ -22,6 +22,9 @@
                 @can('verify reports')
                     <x-button variant="ghost" :href="route('reports.verify.index')" icon="shield">Verifikasi</x-button>
                 @endcan
+                @can('export reports')
+                    <x-button variant="ghost" :href="route('reports.export')" icon="download">Export</x-button>
+                @endcan
                 @can('create reports')
                     <x-button :href="route('reports.create')" icon="plus">Buat laporan</x-button>
                 @endcan

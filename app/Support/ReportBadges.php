@@ -52,6 +52,19 @@ class ReportBadges
     }
 
     /**
+     * Human readable label for a report's risk level.
+     */
+    public static function riskLabel(Report $report): string
+    {
+        return match ($report->risk_level->value) {
+            'low' => 'Rendah',
+            'medium' => 'Sedang',
+            'high' => 'Tinggi',
+            default => '-',
+        };
+    }
+
+    /**
      * Colour classes used for each risk level.
      */
     public static function riskClasses(string $risk): string
