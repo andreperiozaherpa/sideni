@@ -36,3 +36,18 @@ test('the dashboard shows every report to an admin', function () {
     expect($response->viewData('stats')['total'])->toBe(3);
     expect($response->viewData('mapPoints'))->toHaveCount(3);
 });
+
+test('the dashboard counts rejected reports on the combined rejected/cancelled card', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    Report::factory()->create(['status' => 'rejected']);
+    Report::factory()->create(['status' => 'rejected']);
+    Report::factory()->create(['status' => 'completed']);
+    Report::factory()->create(['status' => 'pending']);
+
+    $response = $this->actingAs($admin)->get(route('dashboard'));
+
+    $response->assertOk()->assertSee('Ditolak / Dibatalkan');
+    expect($response->viewData('stats')['rejected'])->toBe(2);
+});

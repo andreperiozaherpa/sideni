@@ -62,6 +62,7 @@ class DashboardController extends Controller
                 'pending' => (int) ($statusCounts[ReportStatus::Pending->value] ?? 0),
                 'inProgress' => (int) ($statusCounts[ReportStatus::InProgress->value] ?? 0),
                 'completed' => (int) ($statusCounts[ReportStatus::Completed->value] ?? 0),
+                'rejected' => (int) $statusCounts->only([ReportStatus::Rejected->value, 'cancelled'])->sum(),
             ],
             'statusChart' => [
                 'labels' => $statusLabels->values(),

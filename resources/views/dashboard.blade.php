@@ -20,11 +20,12 @@
             </div>
         </section>
 
-        <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div class="glass p-5"><p class="text-sm text-slate-500">Total laporan</p><p class="mt-2 text-3xl font-bold text-slate-900">{{ $stats['total'] }}</p></div>
             <div class="glass p-5"><p class="text-sm text-slate-500">Menunggu</p><p class="mt-2 text-3xl font-bold text-amber-600">{{ $stats['pending'] }}</p></div>
             <div class="glass p-5"><p class="text-sm text-slate-500">Dalam penanganan</p><p class="mt-2 text-3xl font-bold text-indigo-600">{{ $stats['inProgress'] }}</p></div>
             <div class="glass p-5"><p class="text-sm text-slate-500">Selesai</p><p class="mt-2 text-3xl font-bold text-emerald-600">{{ $stats['completed'] }}</p></div>
+            <div class="glass p-5"><p class="text-sm text-slate-500">Ditolak / Dibatalkan</p><p class="mt-2 text-3xl font-bold text-rose-600">{{ $stats['rejected'] }}</p></div>
         </section>
 
         <section class="grid gap-6 lg:grid-cols-2">
