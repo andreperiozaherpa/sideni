@@ -53,7 +53,6 @@
                     ['data' => 'risk_label', 'title' => 'Risiko', 'orderable' => false],
                     ['data' => 'status_label', 'title' => 'Status', 'orderable' => false],
                     ['data' => 'created_label', 'title' => 'Dibuat', 'orderable' => false, 'searchable' => false],
-                    ['data' => 'sla', 'title' => 'SLA', 'orderable' => false, 'searchable' => false],
                     ['data' => 'action', 'title' => '', 'orderable' => false, 'searchable' => false],
                 ]"
             />

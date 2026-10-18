@@ -39,7 +39,7 @@ test('changing the status refreshes the stage timestamp', function () {
     expect($report->status_changed_at->greaterThan(now()->subMinute()))->toBeTrue();
 });
 
-test('the reports datatable exposes the sla indicator', function () {
+test('the reports datatable omits the sla column and renders action buttons', function () {
     $this->seed(RolesAndPermissionsSeeder::class);
     $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
     $report = Report::factory()->create(['status' => 'pending']);
@@ -47,5 +47,8 @@ test('the reports datatable exposes the sla indicator', function () {
 
     $response = $this->actingAs($admin)->getJson(route('reports.index'), ['X-Requested-With' => 'XMLHttpRequest']);
 
-    $response->assertOk()->assertJsonFragment(['sla' => '<span class="badge bg-rose-100 text-rose-700">Terlambat</span>']);
+    $response->assertOk()->assertJsonMissingPath('data.0.sla');
+
+    $action = $response->json('data.0.action');
+    expect($action)->toContain('Lihat')->toContain('Verifikasi')->toContain('rounded-lg');
 });
