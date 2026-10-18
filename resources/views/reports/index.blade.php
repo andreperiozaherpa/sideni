@@ -46,6 +46,7 @@
             <x-datatable
                 id="reports-table"
                 :url="route('reports.index', array_filter(['status' => $currentStatus]))"
+                :footer-search="false"
                 :columns="[
                     ['data' => 'registration_number', 'title' => 'Nomor'],
                     ['data' => 'village_name', 'title' => 'Kampung', 'orderable' => false],

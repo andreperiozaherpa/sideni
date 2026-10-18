@@ -124,6 +124,26 @@ test('the reports datatable renders coloured status badges', function () {
     ]);
 });
 
+test('the reports table hides the per-column footer search', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+
+    $this->actingAs($admin)->get(route('reports.index'))
+        ->assertOk()
+        ->assertDontSee('data-column-search', false);
+});
+
+test('other tables keep the per-column footer search', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+
+    $this->actingAs($admin)->get(route('villages.index'))
+        ->assertOk()
+        ->assertSee('data-column-search', false);
+});
+
 test('a temporary upload can be stored and discarded', function () {
     Storage::fake('local');
     $user = User::factory()->create();
