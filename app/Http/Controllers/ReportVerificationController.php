@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
-use App\Support\ReportBadges;
+use App\Support\TableActions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,9 +27,8 @@ class ReportVerificationController extends Controller
                 ->addColumn('category_name', fn (Report $report) => $report->reportCategory?->name ?? '-')
                 ->addColumn('risk_label', fn (Report $report) => str($report->risk_level->value)->title())
                 ->addColumn('submitted_label', fn (Report $report) => $report->created_at?->format('d/m/Y H:i'))
-                ->addColumn('sla', fn (Report $report) => ReportBadges::sla($report))
-                ->addColumn('action', fn (Report $report) => '<a class="link" href="'.route('reports.verify.show', $report).'">Verifikasi</a>')
-                ->rawColumns(['sla', 'action'])
+                ->addColumn('action', fn (Report $report) => TableActions::button('Verifikasi', route('reports.verify.show', $report), 'from-sky-600 to-indigo-600 shadow-sky-500/25'))
+                ->rawColumns(['action'])
                 ->toJson();
         }
 

@@ -21,7 +21,6 @@
                     ['data' => 'category_name', 'title' => 'Kategori', 'orderable' => false],
                     ['data' => 'risk_label', 'title' => 'Risiko', 'orderable' => false],
                     ['data' => 'submitted_label', 'title' => 'Dilaporkan', 'orderable' => false, 'searchable' => false],
-                    ['data' => 'sla', 'title' => 'SLA', 'orderable' => false, 'searchable' => false],
                     ['data' => 'action', 'title' => '', 'orderable' => false, 'searchable' => false],
                 ]"
             />

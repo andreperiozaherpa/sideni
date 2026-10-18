@@ -52,3 +52,15 @@ test('the reports datatable omits the sla column and renders action buttons', fu
     $action = $response->json('data.0.action');
     expect($action)->toContain('Lihat')->toContain('Verifikasi')->toContain('rounded-lg');
 });
+
+test('the verification datatable omits the sla column and renders a verify button', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    Report::factory()->create(['status' => 'pending']);
+
+    $response = $this->actingAs($admin)->getJson(route('reports.verify.index'), ['X-Requested-With' => 'XMLHttpRequest']);
+
+    $response->assertOk()->assertJsonMissingPath('data.0.sla');
+
+    expect($response->json('data.0.action'))->toContain('Verifikasi')->toContain('rounded-lg');
+});

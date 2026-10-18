@@ -10,6 +10,7 @@ use App\Models\ReportCategory;
 use App\Models\TemporaryUpload;
 use App\Models\Village;
 use App\Support\ReportBadges;
+use App\Support\TableActions;
 use App\Support\UploadService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -286,36 +287,21 @@ class ReportController extends Controller
 
     private function reportActions(Report $report): string
     {
-        $actions = [$this->actionButton('Lihat', route('reports.show', $report))];
+        $actions = [TableActions::button('Lihat', route('reports.show', $report))];
 
         if ($report->submitted_by_id === auth()->id() && $report->status === ReportStatus::NeedsClarification) {
-            $actions[] = $this->actionButton('Lengkapi', route('reports.edit', $report), 'from-amber-500 to-orange-500');
+            $actions[] = TableActions::button('Lengkapi', route('reports.edit', $report), 'from-amber-500 to-orange-500');
         }
 
         if (auth()->user()->can('verify reports') && $report->status === ReportStatus::Pending) {
-            $actions[] = $this->actionButton('Verifikasi', route('reports.verify.show', $report), 'from-sky-600 to-indigo-600 shadow-sky-500/25');
+            $actions[] = TableActions::button('Verifikasi', route('reports.verify.show', $report), 'from-sky-600 to-indigo-600 shadow-sky-500/25');
         }
 
         if (auth()->user()->can('delete reports')) {
-            $actions[] = '<form method="POST" action="'.route('reports.destroy', $report).'" data-confirm="Hapus laporan '.e($report->registration_number).' secara permanen?">'
-                .csrf_field().method_field('DELETE')
-                .'<button type="submit" class="inline-flex items-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-sm shadow-rose-500/25 hover:brightness-110">Hapus</button>'
-                .'</form>';
+            $actions[] = TableActions::deleteButton(route('reports.destroy', $report), 'Hapus laporan '.$report->registration_number.' secara permanen?');
         }
 
         return '<div class="flex flex-wrap gap-2">'.implode('', $actions).'</div>';
-    }
-
-    /**
-     * Build a compact button for a DataTables action cell.
-     */
-    private function actionButton(string $label, string $url, ?string $gradient = null): string
-    {
-        $classes = $gradient === null
-            ? 'border border-white/60 bg-white/70 text-slate-700 hover:bg-white'
-            : 'bg-gradient-to-r '.$gradient.' text-white shadow-sm hover:brightness-110';
-
-        return '<a class="inline-flex items-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition '.$classes.'" href="'.e($url).'">'.e($label).'</a>';
     }
 
     /**
