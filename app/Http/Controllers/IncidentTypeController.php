@@ -77,7 +77,11 @@ class IncidentTypeController extends Controller
      */
     public function destroy(IncidentType $incidentType): RedirectResponse
     {
-        abort_if($incidentType->reports()->exists(), 422, 'Jenis kejadian masih digunakan oleh laporan.');
+        if ($incidentType->reports()->exists()) {
+            return redirect()->route('incident-types.index')->withErrors([
+                'incident_type' => 'Jenis kejadian "'.$incidentType->name.'" masih digunakan oleh laporan.',
+            ]);
+        }
 
         $incidentType->delete();
 

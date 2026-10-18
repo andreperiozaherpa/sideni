@@ -74,7 +74,11 @@ class PermissionController extends Controller
      */
     public function destroy(Permission $permission): RedirectResponse
     {
-        abort_if($permission->roles()->exists(), 422, 'Hak akses masih digunakan oleh role.');
+        if ($permission->roles()->exists()) {
+            return redirect()->route('permissions.index')->withErrors([
+                'permission' => 'Hak akses "'.$permission->name.'" masih digunakan oleh role.',
+            ]);
+        }
 
         $permission->delete();
 

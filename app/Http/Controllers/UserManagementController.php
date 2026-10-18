@@ -83,12 +83,17 @@ class UserManagementController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
-        abort_if($user->is(auth()->user()), 422, 'Akun yang sedang digunakan tidak dapat dihapus.');
-        abort_if(
-            $user->hasRole('Super Admin') && User::role('Super Admin')->count() <= 1,
-            422,
-            'Super Admin terakhir tidak dapat dihapus.',
-        );
+        if ($user->is(auth()->user())) {
+            return redirect()->route('users.index')->withErrors([
+                'user' => 'Akun yang sedang Anda gunakan tidak dapat dihapus.',
+            ]);
+        }
+
+        if ($user->hasRole('Super Admin') && User::role('Super Admin')->count() <= 1) {
+            return redirect()->route('users.index')->withErrors([
+                'user' => 'Super Admin terakhir tidak dapat dihapus.',
+            ]);
+        }
 
         $user->delete();
 

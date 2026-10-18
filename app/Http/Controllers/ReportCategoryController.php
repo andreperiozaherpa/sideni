@@ -75,11 +75,11 @@ class ReportCategoryController extends Controller
      */
     public function destroy(ReportCategory $reportCategory): RedirectResponse
     {
-        abort_if(
-            $reportCategory->reports()->exists() || $reportCategory->incidentTypes()->exists(),
-            422,
-            'Kategori masih digunakan oleh laporan atau jenis kejadian.',
-        );
+        if ($reportCategory->reports()->exists() || $reportCategory->incidentTypes()->exists()) {
+            return redirect()->route('report-categories.index')->withErrors([
+                'report_category' => 'Kategori "'.$reportCategory->name.'" masih digunakan oleh laporan atau jenis kejadian.',
+            ]);
+        }
 
         $reportCategory->delete();
 

@@ -77,7 +77,11 @@ class VillageController extends Controller
      */
     public function destroy(Village $village): RedirectResponse
     {
-        abort_if($village->reports()->exists(), 422, 'Kampung masih memiliki data laporan.');
+        if ($village->reports()->exists()) {
+            return redirect()->route('villages.index')->withErrors([
+                'village' => 'Kampung "'.$village->name.'" masih memiliki data laporan sehingga tidak dapat dihapus.',
+            ]);
+        }
 
         $village->delete();
 

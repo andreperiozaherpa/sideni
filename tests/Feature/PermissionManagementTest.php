@@ -26,7 +26,7 @@ test('a permission still assigned to a role cannot be deleted', function () {
     $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
     $permission = Permission::findByName('view dashboard');
 
-    $this->actingAs($admin)->delete(route('permissions.destroy', $permission))->assertStatus(422);
+    $this->actingAs($admin)->delete(route('permissions.destroy', $permission))->assertRedirect()->assertSessionHasErrors('permission');
     $this->assertModelExists($permission);
 });
 

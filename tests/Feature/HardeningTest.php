@@ -14,8 +14,16 @@ test('the last super admin cannot be deleted', function () {
     $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
     $superAdmin = User::factory()->create()->assignRole('Super Admin');
 
-    $this->actingAs($admin)->delete(route('users.destroy', $superAdmin))->assertStatus(422);
+    $this->actingAs($admin)->delete(route('users.destroy', $superAdmin))->assertRedirect()->assertSessionHasErrors('user');
     $this->assertModelExists($superAdmin);
+});
+
+test('a user cannot delete their own account', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+
+    $this->actingAs($admin)->delete(route('users.destroy', $admin))->assertRedirect()->assertSessionHasErrors('user');
+    $this->assertModelExists($admin);
 });
 
 test('the temporary upload pruner removes only stale uploads', function () {

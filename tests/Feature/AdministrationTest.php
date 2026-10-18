@@ -80,7 +80,7 @@ test('a role still held by a user cannot be deleted', function () {
     $role = Role::findByName('Camat/Forkopimcam');
     User::factory()->create()->assignRole('Camat/Forkopimcam');
 
-    $this->actingAs($admin)->delete(route('roles.destroy', $role))->assertStatus(422);
+    $this->actingAs($admin)->delete(route('roles.destroy', $role))->assertRedirect()->assertSessionHasErrors('role');
     $this->assertModelExists($role);
 });
 

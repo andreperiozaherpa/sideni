@@ -78,7 +78,13 @@ class RoleController extends Controller
      */
     public function destroy(Role $role): RedirectResponse
     {
-        abort_if($role->users()->exists(), 422, 'Role masih digunakan oleh pengguna.');
+        $usersCount = $role->users()->count();
+
+        if ($usersCount > 0) {
+            return redirect()->route('roles.index')->withErrors([
+                'role' => 'Role "'.$role->name.'" masih digunakan oleh '.$usersCount.' pengguna. Lepaskan role ini dari pengguna tersebut sebelum menghapusnya.',
+            ]);
+        }
 
         $role->delete();
 

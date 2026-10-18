@@ -75,7 +75,11 @@ class DistrictController extends Controller
      */
     public function destroy(District $district): RedirectResponse
     {
-        abort_if($district->villages()->exists(), 422, 'Kecamatan masih memiliki data kampung.');
+        if ($district->villages()->exists()) {
+            return redirect()->route('districts.index')->withErrors([
+                'district' => 'Kecamatan "'.$district->name.'" masih memiliki data kampung. Hapus atau pindahkan kampungnya terlebih dahulu.',
+            ]);
+        }
 
         $district->delete();
 
