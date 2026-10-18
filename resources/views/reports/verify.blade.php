@@ -103,7 +103,7 @@
                             @csrf
                             <p class="text-sm font-medium text-slate-700">Kembalikan ke kampung</p>
                             <input class="field" name="note" placeholder="Catatan klarifikasi" maxlength="5000">
-                            <x-button type="submit" variant="ghost" class="w-full">Perlu klarifikasi</x-button>
+                            <x-button type="submit" variant="warning" class="w-full">Perlu klarifikasi</x-button>
                         </form>
                         <form class="glass-soft grid gap-3 p-4" method="POST" action="{{ route('reports.reject', $report) }}">
                             @csrf

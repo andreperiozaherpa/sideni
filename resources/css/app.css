@@ -40,7 +40,11 @@
     }
 
     .btn-ghost {
-        @apply border border-white/60 bg-white/70 text-slate-700 hover:bg-white;
+        @apply border border-slate-200 bg-white/80 text-slate-700 hover:bg-white;
+    }
+
+    .btn-warning {
+        @apply bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25 hover:brightness-110;
     }
 
     .btn-danger {
