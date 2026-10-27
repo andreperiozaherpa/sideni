@@ -51,6 +51,22 @@
             </div>
         </section>
 
+        @if ($report->status === \App\Enums\ReportStatus::NeedsClarification && $report->submitted_by_id === auth()->id())
+            @php $clarificationNote = $report->latestStatusNote(); @endphp
+            <div class="glass flex flex-wrap items-start justify-between gap-4 border-amber-200/60 bg-amber-50/70 p-4 text-sm text-amber-800">
+                <div class="flex items-start gap-3">
+                    <x-icon name="clipboard" class="h-5 w-5 shrink-0 text-amber-600" />
+                    <div>
+                        <p class="font-semibold">Laporan ini dikembalikan untuk klarifikasi.</p>
+                        @if ($clarificationNote)
+                            <p class="mt-1"><strong>Catatan petugas:</strong> {{ $clarificationNote }}</p>
+                        @endif
+                    </div>
+                </div>
+                <x-button :href="route('reports.edit', $report)" icon="clipboard">Lengkapi laporan</x-button>
+            </div>
+        @endif
+
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="space-y-6 lg:col-span-2">
                 <x-panel title="Informasi Laporan">

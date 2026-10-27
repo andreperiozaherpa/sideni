@@ -169,6 +169,18 @@ class Report extends Model
     }
 
     /**
+     * Note attached to the most recent status change, if any.
+     */
+    public function latestStatusNote(): ?string
+    {
+        if ($this->relationLoaded('statusHistories')) {
+            return $this->statusHistories->sortByDesc('created_at')->first()?->note;
+        }
+
+        return $this->statusHistories()->latest('id')->value('note');
+    }
+
+    /**
      * Determine whether the given user may read the reporter's full identity.
      */
     public function identityVisibleTo(?User $user = null): bool

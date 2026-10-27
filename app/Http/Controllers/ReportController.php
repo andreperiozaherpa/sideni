@@ -264,14 +264,19 @@ class ReportController extends Controller
         $fromStatus = $report->status->value;
         abort_unless($report->status->canTransitionTo($status), 422, 'Transisi status tidak valid.');
 
-        $report->status = $status;
-        $report->save();
-        $report->statusHistories()->create([
-            'from_status' => $fromStatus,
-            'to_status' => $status->value,
-            'changed_by_id' => auth()->id(),
-            'note' => $note,
-        ]);
+        DB::transaction(function () use ($report, $status, $fromStatus, $note): void {
+            // The history is written first so the status-change notification
+            // (queued, possibly synchronous) can already read the note.
+            $report->statusHistories()->create([
+                'from_status' => $fromStatus,
+                'to_status' => $status->value,
+                'changed_by_id' => auth()->id(),
+                'note' => $note,
+            ]);
+
+            $report->status = $status;
+            $report->save();
+        });
 
         return redirect()->route('reports.show', $report)->with('status', 'Status laporan berhasil diperbarui.');
     }

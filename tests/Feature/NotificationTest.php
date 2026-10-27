@@ -61,3 +61,18 @@ test('notification emails show the Way Kanan emblem instead of the Laravel logo'
     expect($html)->toContain('Lambang_Kabupaten_Way_Kanan.png');
     expect(str_contains($html, 'laravel.com'))->toBeFalse();
 });
+
+test('the status notification carries the verifier note', function () {
+    $owner = User::factory()->create();
+    $report = Report::factory()->create(['submitted_by_id' => $owner->id]);
+    $report->statusHistories()->create([
+        'from_status' => 'pending',
+        'to_status' => 'needs_clarification',
+        'note' => 'Lampirkan foto lokasi terbaru.',
+    ]);
+
+    $notification = new ReportStatusChanged($report);
+
+    expect($notification->toArray($owner)['note'])->toBe('Lampirkan foto lokasi terbaru.');
+    expect($notification->toMail($owner)->introLines)->toContain('Catatan petugas: Lampirkan foto lokasi terbaru.');
+});

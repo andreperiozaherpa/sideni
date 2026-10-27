@@ -15,9 +15,15 @@
         </div>
 
         @if ($report->exists)
+            @php $clarificationNote = $report->latestStatusNote(); @endphp
             <div class="glass flex items-start gap-3 border-amber-200/60 bg-amber-50/70 p-4 text-sm text-amber-800">
                 <x-icon name="clipboard" class="h-5 w-5 shrink-0 text-amber-600" />
-                <span>Laporan ini berstatus <strong>Perlu Klarifikasi</strong>. Lengkapi data sesuai catatan petugas, lalu kirim ulang untuk diverifikasi kembali.</span>
+                <div>
+                    <p>Laporan ini berstatus <strong>Perlu Klarifikasi</strong>. Lengkapi data sesuai catatan petugas, lalu kirim ulang untuk diverifikasi kembali.</p>
+                    @if ($clarificationNote)
+                        <p class="mt-2 rounded-xl bg-white/70 px-3 py-2 text-amber-900"><strong>Catatan petugas:</strong> {{ $clarificationNote }}</p>
+                    @endif
+                </div>
             </div>
         @endif
 

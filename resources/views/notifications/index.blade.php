@@ -16,6 +16,9 @@
                 <article class="glass flex items-start justify-between gap-4 p-4 {{ $notification->read_at ? '' : 'border-sky-200/70 bg-sky-50/60' }}">
                     <div>
                         <p class="text-sm font-medium text-slate-800">{{ $notification->data['message'] ?? 'Pembaruan laporan.' }}</p>
+                        @if (! empty($notification->data['note']))
+                            <p class="mt-1 text-sm text-slate-600"><strong>Catatan petugas:</strong> {{ $notification->data['note'] }}</p>
+                        @endif
                         <p class="mt-1 text-xs text-slate-500">{{ $notification->created_at?->format('d/m/Y H:i') }}</p>
                     </div>
                     <form method="POST" action="{{ route('notifications.read', $notification->id) }}">@csrf<x-button type="submit" :variant="$notification->read_at ? 'ghost' : 'primary'">{{ $notification->read_at ? 'Buka' : 'Baca' }}</x-button></form>

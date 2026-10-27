@@ -32,10 +32,16 @@ class ReportStatusChanged extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        $message = (new MailMessage)
             ->subject('Perubahan status laporan '.$this->report->registration_number)
             ->greeting('Halo '.$notifiable->name.',')
-            ->line('Status laporan Anda telah diperbarui menjadi: '.$this->statusLabel().'.')
+            ->line('Status laporan Anda telah diperbarui menjadi: '.$this->statusLabel().'.');
+
+        if ($note = $this->report->latestStatusNote()) {
+            $message->line('Catatan petugas: '.$note);
+        }
+
+        return $message
             ->action('Lihat laporan', route('reports.show', $this->report))
             ->line('Terima kasih telah menggunakan SI-DENI Way Kanan.')
             ->salutation('Salam, '.config('app.name'));
@@ -52,6 +58,7 @@ class ReportStatusChanged extends Notification implements ShouldQueue
             'report_id' => $this->report->id,
             'registration_number' => $this->report->registration_number,
             'status' => $this->report->status->value,
+            'note' => $this->report->latestStatusNote(),
             'message' => 'Status laporan '.$this->report->registration_number.' menjadi '.$this->statusLabel().'.',
         ];
     }

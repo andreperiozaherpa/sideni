@@ -301,3 +301,35 @@ test('the delete reports permission is registered in the RBAC', function () {
     expect(Permission::findByName('delete reports'))->not->toBeNull();
     expect(Role::findByName('Super Admin')->hasPermissionTo('delete reports'))->toBeTrue();
 });
+
+test('the verifier clarification note is shown to the reporter', function () {
+    $this->withoutVite();
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create()->assignRole('Admin Kesbangpol');
+    $village = Village::factory()->create();
+    $owner = User::factory()->create(['village_id' => $village->id])->assignRole('Aparatur Kampung');
+
+    $report = Report::factory()->create([
+        'submitted_by_id' => $owner->id,
+        'village_id' => $village->id,
+        'status' => 'pending',
+    ]);
+
+    $this->actingAs($admin)
+        ->post(route('reports.clarify', $report), ['note' => 'Lampirkan foto lokasi terbaru.'])
+        ->assertRedirect();
+
+    $report->refresh();
+
+    expect($report->status)->toBe(ReportStatus::NeedsClarification);
+    expect($report->latestStatusNote())->toBe('Lampirkan foto lokasi terbaru.');
+
+    $this->actingAs($owner)->get(route('reports.show', $report))
+        ->assertOk()
+        ->assertSee('Lampirkan foto lokasi terbaru.');
+
+    $this->actingAs($owner)->get(route('reports.edit', $report))
+        ->assertOk()
+        ->assertSee('Catatan petugas:')
+        ->assertSee('Lampirkan foto lokasi terbaru.');
+});
