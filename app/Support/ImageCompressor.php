@@ -29,18 +29,30 @@ class ImageCompressor
     /**
      * Compress an uploaded image so it fits under the target size.
      *
+     * Returns null when the file is not a supported image or when GD/its
+     * encoders are unavailable, so the caller stores the original instead of
+     * failing the upload.
+     *
      * @return array{bytes: string, extension: string, mime: string}|null
      */
     public function compress(UploadedFile $file): ?array
     {
+        if (! function_exists('imagecreatefromstring')) {
+            return null;
+        }
+
         $mime = (string) ($file->getMimeType() ?: '');
 
         if (! in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
             return null;
         }
 
-        $contents = @file_get_contents($file->getRealPath());
-        $image = $contents === false ? false : @imagecreatefromstring($contents);
+        try {
+            $contents = @file_get_contents($file->getRealPath());
+            $image = $contents === false ? false : @imagecreatefromstring($contents);
+        } catch (\Throwable) {
+            return null;
+        }
 
         if ($image === false) {
             return null;
@@ -48,7 +60,12 @@ class ImageCompressor
 
         $original = $image;
         $image = $this->downscale($image, self::MAX_DIMENSION);
-        $result = $this->fitUnderLimit($image, $mime);
+
+        try {
+            $result = $this->fitUnderLimit($image, $mime);
+        } catch (\Throwable) {
+            $result = null;
+        }
 
         imagedestroy($image);
         if ($original !== $image) {
